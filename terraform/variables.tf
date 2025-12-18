@@ -29,3 +29,15 @@ variable "db_password" {
   type      = string
   sensitive = true
 }
+
+variable "tags" {
+  description = "Common tags applied to all resources"
+  type        = map(string)
+
+  default = {
+    Owner   = "AlexMara"
+    Project = "WeatherApp"
+    Env     = "Hackathon"
+    Managed = "Terraform"
+  }
+}
