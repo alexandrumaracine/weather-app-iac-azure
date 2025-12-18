@@ -1,0 +1,3 @@
+db_name     = "weather"
+db_user     = "weatheruser"
+db_password = "ChangeMe123!"
