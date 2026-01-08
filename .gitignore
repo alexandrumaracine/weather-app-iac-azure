@@ -1,0 +1,14 @@
+# Terraform working directory
+.terraform/
+
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Terraform variables (often contain secrets)
+*.tfvars
+*.tfvars.json
+
+# Crash logs
+crash.log
+crash.*.log

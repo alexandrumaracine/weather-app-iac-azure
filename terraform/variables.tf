@@ -1,43 +1,55 @@
-variable "project" {
-  type    = string
-  default = "weather-app"
-}
-
 variable "location" {
-  type    = string
   default = "westeurope"
 }
 
-variable "tags" {
-  type = map(string)
-  default = {
-    project = "weather-app"
-    env     = "hackathon"
-  }
+variable "project_name" {
+  default = "skycastnow"
 }
 
-# DB (hackathon-safe values go in tfvars, not here)
-variable "db_name" {
-  type = string
+variable "owner" {
+  default = "AlexMara"
 }
 
-variable "db_user" {
-  type = string
-}
-
-variable "db_password" {
-  type      = string
+variable "openweather_api_key" {
   sensitive = true
 }
 
-variable "tags" {
-  description = "Common tags applied to all resources"
-  type        = map(string)
+variable "mysql_admin_user" {
+  default = "weatheruser"
+}
 
-  default = {
-    Owner   = "AlexMara"
-    Project = "WeatherApp"
-    Env     = "Hackathon"
-    Managed = "Terraform"
-  }
+variable "mysql_admin_password" {
+  sensitive = true
+}
+
+variable "mysql_database" {
+  default = "weatherdb"
+}
+
+variable "backend_name" {
+  type        = string
+  default     = "skycastnow-backend"
+  description = "Azure Container App name for backend"
+}
+
+variable "frontend_name" {
+  type        = string
+  default     = "skycastnow-frontend"
+  description = "Azure Container App name for frontend"
+}
+
+variable "backend_image" {
+  type        = string
+  description = "Full backend image reference in ACR (e.g. myacr.azurecr.io/backend:1.0.1)"
+}
+
+variable "frontend_image" {
+  type        = string
+  description = "Full frontend image reference in ACR (e.g. myacr.azurecr.io/frontend:1.0.1)"
+}
+
+variable "deploy_apps" {
+  description = "When false, do NOT create the frontend/backend Container Apps (infra only)."
+  type        = bool
+  default     = false
 }
