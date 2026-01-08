@@ -226,8 +226,6 @@ resource "azurerm_container_app" "frontend" {
     max_replicas = 3
   }
 }
-
-
 # Allow frontend container app identity to pull from ACR
 # resource "azurerm_role_assignment" "frontend_acr_pull" {
 #   scope                = azurerm_container_registry.acr.id
