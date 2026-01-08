@@ -41,11 +41,13 @@ variable "frontend_name" {
 variable "backend_image" {
   type        = string
   description = "Full backend image reference in ACR (e.g. myacr.azurecr.io/backend:1.0.1)"
+  default     = ""
 }
 
 variable "frontend_image" {
   type        = string
   description = "Full frontend image reference in ACR (e.g. myacr.azurecr.io/frontend:1.0.1)"
+  default     = ""
 }
 
 variable "deploy_apps" {
