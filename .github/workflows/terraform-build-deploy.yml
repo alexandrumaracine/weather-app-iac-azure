@@ -53,12 +53,7 @@ jobs:
       - name: Terraform Init
         working-directory: terraform
         run: |
-         echo "RG=${{ secrets.TFSTATE_RESOURCE_GROUP }}"
-         echo "SA=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}"
-         echo "CONTAINER=${{ secrets.TFSTATE_CONTAINER }}"
-         echo "KEY=${{ secrets.TFSTATE_KEY }}"
-         
-          terraform init \
+          terraform init -reconfigure \
             -backend-config="resource_group_name=${{ secrets.TFSTATE_RESOURCE_GROUP }}" \
             -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}" \
             -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
