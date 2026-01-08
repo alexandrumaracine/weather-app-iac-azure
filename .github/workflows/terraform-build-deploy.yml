@@ -92,9 +92,8 @@ jobs:
       - name: Build & Push Backend Image
         if: inputs.deploy_apps == false
         run: |
-          docker build \
-            -t ${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }} \
-            app/app/backend
+          docker build app/app/backend \
+            -t "${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }}"
 
           docker push \
             ${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }}
@@ -105,12 +104,10 @@ jobs:
       - name: Build & Push Frontend Image
         if: inputs.deploy_apps == false
         run: |
-          docker build \
-            -t ${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }} \
-            app/app/frontend
+          docker build app/app/frontend \
+            -t "${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}"
 
-          docker push \
-            ${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}
+          docker push "${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}"
 
       # ---------------------------
       # Terraform Apply (DEPLOY APPS)
