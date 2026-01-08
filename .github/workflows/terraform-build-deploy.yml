@@ -28,6 +28,15 @@ jobs:
       # ---------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      # ---------------------------
+      # Checkout application repository
+      # ---------------------------
+      - name: Checkout application repository
+        uses: actions/checkout@v4
+        with:
+          repository: alexandrumaracine/devops-hackathon-app
+          path: app
 
       # ---------------------------
       # Azure Login via OIDC
@@ -85,7 +94,7 @@ jobs:
         run: |
           docker build \
             -t ${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }} \
-            ./backend
+            app/app/backend
 
           docker push \
             ${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }}
@@ -98,7 +107,7 @@ jobs:
         run: |
           docker build \
             -t ${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }} \
-            ./frontend
+            app/app/frontend
 
           docker push \
             ${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}
