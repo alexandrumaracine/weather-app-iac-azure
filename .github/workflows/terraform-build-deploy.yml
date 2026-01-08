@@ -1,0 +1,118 @@
+name: Terraform Infra + Build Images + Deploy Apps
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_apps:
+        description: "Deploy frontend & backend container apps"
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ARM_USE_OIDC: true
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ---------------------------
+      # Checkout
+      # ---------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---------------------------
+      # Azure Login via OIDC
+      # ---------------------------
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # ---------------------------
+      # Terraform setup
+      # ---------------------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      # ---------------------------
+      # Terraform Init (remote backend)
+      # ---------------------------
+      - name: Terraform Init
+        working-directory: terraform
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ secrets.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
+            -backend-config="key=${{ secrets.TFSTATE_KEY }}"
+
+      # ---------------------------
+      # Terraform Apply (INFRA ONLY)
+      # ---------------------------
+      - name: Terraform Apply (infra only)
+        working-directory: terraform
+        env:
+          TF_VAR_deploy_apps: "false"
+          TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
+          TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
+        run: terraform apply -auto-approve
+
+      # ---------------------------
+      # Login to ACR
+      # ---------------------------
+      - name: Login to Azure Container Registry
+        run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
+
+      # ---------------------------
+      # Build & Push Backend Image
+      # ---------------------------
+      - name: Build & Push Backend Image
+        if: inputs.deploy_apps == false
+        run: |
+          docker build \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }} \
+            ./backend
+
+          docker push \
+            ${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }}
+
+      # ---------------------------
+      # Build & Push Frontend Image
+      # ---------------------------
+      - name: Build & Push Frontend Image
+        if: inputs.deploy_apps == false
+        run: |
+          docker build \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }} \
+            ./frontend
+
+          docker push \
+            ${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}
+
+      # ---------------------------
+      # Terraform Apply (DEPLOY APPS)
+      # ---------------------------
+      - name: Terraform Apply (deploy container apps)
+        if: inputs.deploy_apps == true
+        working-directory: terraform
+        env:
+          TF_VAR_deploy_apps: "true"
+          TF_VAR_backend_image:  "${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }}"
+          TF_VAR_frontend_image: "${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}"
+          TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
+          TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
+        run: terraform apply -auto-approve
