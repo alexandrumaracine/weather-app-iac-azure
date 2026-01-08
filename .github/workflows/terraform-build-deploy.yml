@@ -54,7 +54,7 @@ jobs:
         working-directory: terraform
         run: |
           terraform init -reconfigure \
-            -backend-config="resource_group_name=rg-tfstate" \
+            -backend-config="resource_group_name=rg-skycastnow-tfstate" \
             -backend-config="storage_account_name=tfstateskycastnow19471" \
             -backend-config="container_name=tfstate" \
             -backend-config="key=skycastnow.terraform.tfstate"
