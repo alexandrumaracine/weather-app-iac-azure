@@ -46,8 +46,8 @@ resource "azurerm_mysql_flexible_server" "mysql" {
   administrator_login    = var.mysql_admin_user
   administrator_password = var.mysql_admin_password
 
-  sku_name = "B_Standard_B1ms"
-  version  = "8.0.21"
+  sku_name = "GP_Standard_D2ds_v4"     //"B_Standard_B1ms"
+  # version  = "8.0.21"
 
   storage {
     size_gb = 20
@@ -121,8 +121,8 @@ resource "azurerm_container_app" "backend" {
     container {
       name   = "backend"
       image = var.backend_image
-      cpu    = 0.25
-      memory = "0.5Gi"
+      cpu    = 0.5
+      memory = "1Gi"
 
       env {
         name  = "OPENWEATHER_API_KEY"
@@ -151,9 +151,12 @@ resource "azurerm_container_app" "backend" {
     }
 
     min_replicas = 1
-    max_replicas = 3
+    max_replicas = 5
+
   }
 }
+
+
 
 # Allow backend container app identity to pull from ACR
 # resource "azurerm_role_assignment" "backend_acr_pull" {
