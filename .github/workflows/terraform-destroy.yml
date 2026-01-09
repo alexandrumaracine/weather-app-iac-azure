@@ -61,6 +61,6 @@ jobs:
         working-directory: terraform
         env:
           TF_VAR_deploy_apps: "false"
-          TF_VAR_openweather_api_key: "dummy"
-          TF_VAR_mysql_admin_password: "dummy"
+          TF_VAR_openweather_api_key: "DummyPass123!"
+          TF_VAR_mysql_admin_password: "DummyPass123!"
         run: terraform destroy -auto-approve
