@@ -75,5 +75,9 @@ jobs:
       # ---------------------------
       - name: Terraform Plan
         env:
+          TF_VAR_deploy_apps: "false"
           TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
+          TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
+          TF_VAR_backend_image:  "DummyPass123"
+          TF_VAR_frontend_image: "DummyPass123"
         run: terraform plan -no-color
