@@ -45,41 +45,20 @@ module "container_app_env" {
   tags = local.tags
 }
 
-resource "azurerm_mysql_flexible_server" "mysql" {
-  name                = "${var.project_name}-mysql"
-  resource_group_name = module.rg.name
-  location            = module.rg.location
+module "mysql" {
+  source = "./modules/mysql"
 
-  administrator_login    = var.mysql_admin_user
-  administrator_password = var.mysql_admin_password
+  project_name         = var.project_name
+  resource_group_name  = module.rg.name
+  location             = module.rg.location
 
-  sku_name = "GP_Standard_D2ds_v4"     //"B_Standard_B1ms"
+  admin_username = var.mysql_admin_user
+  admin_password = var.mysql_admin_password
 
-  storage {
-    size_gb = 20
-  }
+  database_name = var.mysql_database
 
-  backup_retention_days = 7
-  tags                  = local.tags
+  tags = local.tags
 }
-
-resource "azurerm_mysql_flexible_database" "db" {
-  name                = var.mysql_database
-  resource_group_name = module.rg.name
-  server_name         = azurerm_mysql_flexible_server.mysql.name
-  charset             = "utf8mb4"
-  collation           = "utf8mb4_unicode_ci"
-}
-
-
-resource "azurerm_mysql_flexible_server_firewall_rule" "allow_azure" {
-  name                = "allow-azure"
-  resource_group_name = module.rg.name
-  server_name         = azurerm_mysql_flexible_server.mysql.name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
-}
-
 
 
 # ----------------------------
@@ -137,7 +116,7 @@ resource "azurerm_container_app" "backend" {
 
       env {
         name  = "MYSQL_HOST"
-        value = azurerm_mysql_flexible_server.mysql.fqdn
+        value = module.mysql.fqdn
       }
 
       env {

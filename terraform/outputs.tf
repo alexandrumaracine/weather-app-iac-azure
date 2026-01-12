@@ -3,11 +3,11 @@ output "acr_login_server" {
 }
 
 output "mysql_host" {
-  value = azurerm_mysql_flexible_server.mysql.fqdn
+  value = module.mysql.fqdn
 }
 
 output "mysql_database" {
-  value = azurerm_mysql_flexible_database.db.name
+  value = module.mysql.database_name
 }
 
 output "mysql_user" {
