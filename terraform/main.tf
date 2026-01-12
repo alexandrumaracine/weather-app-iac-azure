@@ -20,14 +20,18 @@ module "acr" {
   tags                = local.tags
 }
 
-resource "azurerm_log_analytics_workspace" "logs" {
+module "log_analytics" {
+  source = "./modules/log-analytics"
+
   name                = "${var.project_name}-logs"
-  resource_group_name = module.rg.name
-  location            = module.rg.location
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-  tags                = local.tags
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  sku               = "PerGB2018"
+  retention_in_days = 30
+  tags              = local.tags
 }
+
 
 resource "azurerm_container_app_environment" "env" {
   name                       = "${var.project_name}-env"
