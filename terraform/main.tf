@@ -12,12 +12,11 @@ module "rg" {
   tags     = local.tags
 }
 
-resource "azurerm_container_registry" "acr" {
+module "acr" {
+  source              = "./modules/acr"
   name                = "${var.project_name}acr"
   resource_group_name = module.rg.name
   location            = module.rg.location
-  sku                 = "Basic"
-  admin_enabled       = true
   tags                = local.tags
 }
 
@@ -97,12 +96,12 @@ resource "azurerm_container_app" "backend" {
 
   secret {
     name  = "acr-password"
-    value = azurerm_container_registry.acr.admin_password
+    value = module.acr.admin_password
   }
 
   registry {
-    server               = azurerm_container_registry.acr.login_server
-    username             = azurerm_container_registry.acr.admin_username
+    server               = module.acr.login_server
+    username             = module.acr.admin_username
     password_secret_name = "acr-password"
   }
 
@@ -185,12 +184,12 @@ resource "azurerm_container_app" "frontend" {
 
   secret {
     name  = "acr-password"
-    value = azurerm_container_registry.acr.admin_password
+    value = module.acr.admin_password
   }
 
   registry {
-    server               = azurerm_container_registry.acr.login_server
-    username             = azurerm_container_registry.acr.admin_username
+    server               = module.acr.login_server
+    username             = module.acr.admin_username
     password_secret_name = "acr-password"
   }
 
