@@ -33,12 +33,16 @@ module "log_analytics" {
 }
 
 
-resource "azurerm_container_app_environment" "env" {
-  name                       = "${var.project_name}-env"
-  location                   = module.rg.location
-  resource_group_name        = module.rg.name
+module "container_app_env" {
+  source = "./modules/container-app-environment"
+
+  name                = "${var.project_name}-env"
+  location            = module.rg.location
+  resource_group_name = module.rg.name
+
   log_analytics_workspace_id = module.log_analytics.id
-  tags                       = local.tags
+
+  tags = local.tags
 }
 
 resource "azurerm_mysql_flexible_server" "mysql" {
@@ -86,7 +90,7 @@ resource "azurerm_container_app" "backend" {
 
   name                         = var.backend_name
   resource_group_name          = module.rg.name
-  container_app_environment_id = azurerm_container_app_environment.env.id
+  container_app_environment_id = module.container_app_env.id
   revision_mode                = "Single"
   tags                         = local.tags
 
@@ -175,7 +179,7 @@ resource "azurerm_container_app" "frontend" {
 
   name                         = var.frontend_name
   resource_group_name          = module.rg.name
-  container_app_environment_id = azurerm_container_app_environment.env.id
+  container_app_environment_id = module.container_app_env.id
   revision_mode                = "Single"
   tags                         = local.tags
 
