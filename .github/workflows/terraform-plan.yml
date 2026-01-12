@@ -1,5 +1,9 @@
 name: Terraform Plan (Safe)
 
+concurrency:
+  group: terraform-skycastnow
+  cancel-in-progress: false
+  
 on:
   pull_request:
     paths:
