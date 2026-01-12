@@ -11,7 +11,7 @@ output "mysql_database" {
 }
 
 output "mysql_user" {
-  value = "${var.mysql_admin_user}@${azurerm_mysql_flexible_server.mysql.name}"
+  value = "${var.mysql_admin_user}@${module.mysql.server_name}"
 }
 
 output "backend_url" {
