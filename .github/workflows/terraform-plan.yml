@@ -70,4 +70,6 @@ jobs:
       # Terraform Plan (SAFE)
       # ---------------------------
       - name: Terraform Plan
+        env:
+          TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
         run: terraform plan -no-color
