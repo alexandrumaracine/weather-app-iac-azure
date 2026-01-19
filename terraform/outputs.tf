@@ -15,10 +15,13 @@ output "mysql_user" {
 }
 
 output "backend_url" {
-  value = var.deploy_apps ? "https://${azurerm_container_app.backend[0].ingress[0].fqdn}" : null
-  
+  value = var.deploy_apps && length(module.backend_app) > 0
+    ? "https://${module.backend_app[0].ingress_fqdn}"
+    : null
 }
 
 output "frontend_url" {
-  value = var.deploy_apps ? "https://${azurerm_container_app.frontend[0].ingress[0].fqdn}" : null
+  value = var.deploy_apps && length(module.frontend_app) > 0
+    ? "https://${module.frontend_app[0].ingress_fqdn}"
+    : null
 }
