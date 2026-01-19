@@ -48,5 +48,5 @@ jobs:
       - name: Terraform State Move (backend app)
         run: |
           terraform state mv \
-            'azurerm_container_app.backend[0]' \
+            'azurerm_container_app.backend' \
             'module.backend_app[0].azurerm_container_app.this'
