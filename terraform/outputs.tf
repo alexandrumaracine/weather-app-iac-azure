@@ -21,3 +21,13 @@ output "backend_url" {
 output "frontend_url" {
   value = var.deploy_apps && length(module.frontend_app) > 0 ? "https://${module.frontend_app[0].ingress_fqdn}" : null
 }
+
+output "app_service_backend_url" {
+  value       = var.enable_app_service ? module.app_service_backend[0].url : null
+  description = "Backend URL (Azure App Service)"
+}
+
+output "app_service_frontend_url" {
+  value       = var.enable_app_service ? module.app_service_frontend[0].url : null
+  description = "Frontend URL (Azure App Service)"
+}

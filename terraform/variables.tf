@@ -55,3 +55,25 @@ variable "deploy_apps" {
   type        = bool
   default     = false
 }
+
+variable "enable_app_service" {
+  type        = bool
+  default     = false
+  description = "Enable Azure App Service deployment"
+}
+
+variable "app_service_plan_sku" {
+  type        = string
+  default     = "P1v3"
+  description = "SKU for the App Service Plan"
+}
+
+variable "app_service_backend_image" {
+  type        = string
+  description = "Backend container image for App Service"
+}
+
+variable "app_service_frontend_image" {
+  type        = string
+  description = "Frontend container image for App Service"
+}

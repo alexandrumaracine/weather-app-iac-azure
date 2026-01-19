@@ -60,6 +60,87 @@ module "mysql" {
   tags = local.tags
 }
 
+module "app_service_plan" {
+  count = var.enable_app_service ? 1 : 0
+
+  source              = "./modules/app-service-plan"
+  name                = "${var.project_name}-asp"
+  resource_group_name = module.rg.name
+  location            = module.rg.location
+  sku_name            = var.app_service_plan_sku
+  tags                = local.tags
+}
+
+module "app_service_backend" {
+  count = var.enable_app_service ? 1 : 0
+
+  source                     = "./modules/app-service-backend"
+  name                       = "${var.project_name}-backend-as"
+  resource_group_name        = module.rg.name
+  location                   = module.rg.location
+  service_plan_id            = module.app_service_plan[0].id
+  log_analytics_workspace_id = module.log_analytics.id
+  tags                       = local.tags
+
+  acr_login_server = module.acr.login_server
+  acr_username     = module.acr.admin_username
+  acr_password     = module.acr.admin_password
+
+  image = var.app_service_backend_image
+
+  app_settings = {
+    MYSQL_HOST = module.mysql.fqdn
+    MYSQL_DB   = var.mysql_database
+    MYSQL_USER = var.mysql_admin_user
+    MYSQL_PASS = var.mysql_admin_password
+
+    OPENWEATHER_API_KEY = var.openweather_api_key
+  }
+}
+
+module "app_service_frontend" {
+  count = var.enable_app_service ? 1 : 0
+
+  source                     = "./modules/app-service-frontend"
+  name                       = "${var.project_name}-frontend-as"
+  resource_group_name        = module.rg.name
+  location                   = module.rg.location
+  service_plan_id            = module.app_service_plan[0].id
+  log_analytics_workspace_id = module.log_analytics.id
+  tags                       = local.tags
+
+  acr_login_server = module.acr.login_server
+  acr_username     = module.acr.admin_username
+  acr_password     = module.acr.admin_password
+
+  image = var.app_service_frontend_image
+
+  app_settings = {
+    BACKEND_URL = module.app_service_backend[0].url
+  }
+}
+
+module "app_service_autoscale" {
+  count = var.enable_app_service ? 1 : 0
+
+  source              = "./modules/monitor-autoscale"
+  name                = "${var.project_name}-asp-autoscale"
+  resource_group_name = module.rg.name
+  location            = module.rg.location
+  target_resource_id  = module.app_service_plan[0].id
+
+  min_capacity      = 1
+  default_capacity  = 1
+  max_capacity      = 5
+
+  cpu_scale_out_threshold = 70
+  cpu_scale_in_threshold  = 30
+
+  tags = local.tags
+}
+
+
+
 # ----------------------------
 # Container Apps: Backend
 # ----------------------------
