@@ -1,14 +1,17 @@
-name: Terraform Plan (Safe)
-
-concurrency:
-  group: terraform-skycastnow
-  cancel-in-progress: false
+name: Terraform Plan (Selectable)
 
 on:
-  pull_request:
-    paths:
-      - "terraform/**"
   workflow_dispatch:
+    inputs:
+      runtime:
+        description: "Which path do you want to validate?"
+        required: true
+        type: choice
+        default: infra
+        options:
+          - infra
+          - aca
+          - appservice
 
 permissions:
   id-token: write
@@ -22,13 +25,8 @@ env:
 
 jobs:
   terraform-plan:
+    name: Terraform Plan (${{ inputs.runtime }})
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        runtime: [aca, appservice]
-
-    name: Terraform Plan (${{ matrix.runtime }})
 
     defaults:
       run:
@@ -77,21 +75,22 @@ jobs:
         run: terraform validate
 
       # ---------------------------
-      # Terraform Plan (runtime-specific)
+      # Terraform Plan
       # ---------------------------
       - name: Terraform Plan
         env:
+          # secrets
           TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
           TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
 
-          # Dummy images (never pulled during plan)
+          # dummy images (plan only)
           TF_VAR_backend_image: "dummy"
           TF_VAR_frontend_image: "dummy"
           TF_VAR_app_service_backend_image: "dummy"
           TF_VAR_app_service_frontend_image: "dummy"
 
-          # Runtime switch
-          TF_VAR_deploy_apps: ${{ matrix.runtime == 'aca' && 'true' || 'false' }}
-          TF_VAR_enable_app_service: ${{ matrix.runtime == 'appservice' && 'true' || 'false' }}
+          # switches
+          TF_VAR_deploy_apps: ${{ inputs.runtime == 'aca' && 'true' || 'false' }}
+          TF_VAR_enable_app_service: ${{ inputs.runtime == 'appservice' && 'true' || 'false' }}
 
         run: terraform plan -no-color
