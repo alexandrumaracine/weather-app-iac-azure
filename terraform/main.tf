@@ -60,7 +60,6 @@ module "mysql" {
   tags = local.tags
 }
 
-
 # ----------------------------
 # Container Apps: Backend
 # ----------------------------
