@@ -64,81 +64,30 @@ module "mysql" {
 # ----------------------------
 # Container Apps: Backend
 # ----------------------------
-resource "azurerm_container_app" "backend" {
-  count = var.deploy_apps ? 1 : 0
+module "backend_app" {
+  count  = var.deploy_apps ? 1 : 0
+  source = "./modules/container-app-backend"
 
   name                         = var.backend_name
   resource_group_name          = module.rg.name
   container_app_environment_id = module.container_app_env.id
-  revision_mode                = "Single"
   tags                         = local.tags
 
+  acr_login_server    = module.acr.login_server
+  acr_admin_username  = module.acr.admin_username
+  acr_admin_password  = module.acr.admin_password
+  # acr_password_secret_name stays default "acr-password"
 
-  lifecycle {
-  ignore_changes = [
-    registry,
-    secret
-  ]
-}
+  image = var.backend_image
 
-  secret {
-    name  = "acr-password"
-    value = module.acr.admin_password
-  }
+  openweather_api_key = var.openweather_api_key
 
-  registry {
-    server               = module.acr.login_server
-    username             = module.acr.admin_username
-    password_secret_name = "acr-password"
-  }
+  mysql_host     = module.mysql.fqdn
+  mysql_database = var.mysql_database
+  mysql_user     = var.mysql_admin_user
+  mysql_password = var.mysql_admin_password
 
-  ingress {
-    external_enabled = true
-    target_port      = 3000
-
-    traffic_weight {
-      latest_revision = true
-      percentage      = 100
-    }
-  }
-
-  template {
-    container {
-      name   = "backend"
-      image = var.backend_image
-      cpu    = 0.5
-      memory = "1Gi"
-
-      env {
-        name  = "OPENWEATHER_API_KEY"
-        value = var.openweather_api_key
-      }
-
-      env {
-        name  = "MYSQL_HOST"
-        value = module.mysql.fqdn
-      }
-
-      env {
-        name  = "MYSQL_DATABASE"
-        value = var.mysql_database
-      }
-
-      env {
-  name  = "MYSQL_USER"
-  value = var.mysql_admin_user
-}
-
-      env {
-        name  = "MYSQL_PASSWORD"
-        value = var.mysql_admin_password
-      }
-    }
-
-    min_replicas = 1
-    max_replicas = 5
-
-  }
+  # cpu/memory/min/max use defaults matching your current config
 }
 
 
@@ -199,7 +148,7 @@ resource "azurerm_container_app" "frontend" {
 
       env {
   name  = "API_BASE_URL"
-  value = var.deploy_apps ? "https://${azurerm_container_app.backend[0].ingress[0].fqdn}" : ""
+  value = var.deploy_apps ? "https://${module.backend_app[0].ingress_fqdn}" : ""
 }
 
 
