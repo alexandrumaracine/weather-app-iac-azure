@@ -6,7 +6,6 @@ resource "azurerm_linux_web_app" "this" {
 
   site_config {
     always_on         = true
-    linux_fx_version = "DOCKER|${var.image}"
   }
 
   app_settings = merge(
@@ -15,6 +14,8 @@ resource "azurerm_linux_web_app" "this" {
       DOCKER_REGISTRY_SERVER_URL      = "https://${var.acr_login_server}"
       DOCKER_REGISTRY_SERVER_USERNAME = var.acr_username
       DOCKER_REGISTRY_SERVER_PASSWORD = var.acr_password
+
+      DOCKER_CUSTOM_IMAGE_NAME = var.image
     },
     var.app_settings
   )
