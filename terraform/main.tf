@@ -102,67 +102,31 @@ module "backend_app" {
 # # ----------------------------
 # # Container Apps: Frontend
 # # ----------------------------
-resource "azurerm_container_app" "frontend" {
-  count = var.deploy_apps ? 1 : 0
+module "frontend_app" {
+  count  = var.deploy_apps ? 1 : 0
+  source = "./modules/container-app-frontend"
 
   name                         = var.frontend_name
   resource_group_name          = module.rg.name
   container_app_environment_id = module.container_app_env.id
-  revision_mode                = "Single"
   tags                         = local.tags
 
-  lifecycle {
-  ignore_changes = [
-    registry,
-    secret
-  ]
-}
+  acr_login_server   = module.acr.login_server
+  acr_admin_username = module.acr.admin_username
+  acr_admin_password = module.acr.admin_password
 
-  secret {
-    name  = "acr-password"
-    value = module.acr.admin_password
-  }
+  image = var.frontend_image
 
-  registry {
-    server               = module.acr.login_server
-    username             = module.acr.admin_username
-    password_secret_name = "acr-password"
-  }
+  api_base_url = var.deploy_apps ? "https://${module.backend_app[0].ingress_fqdn}" : ""
 
-  ingress {
-    external_enabled = true
-    target_port      = 3000
-
-    traffic_weight {
-      latest_revision = true
-      percentage      = 100
-    }
-  }
-
-  template {
-    container {
-      name   = "frontend"
-      image = var.frontend_image
-      cpu    = 0.25
-      memory = "0.5Gi"
-
-      env {
-  name  = "API_BASE_URL"
-  value = var.deploy_apps ? "https://${module.backend_app[0].ingress_fqdn}" : ""
-}
-
-
-      command = [
+  command = [
     "sh",
     "-c",
     "echo \"window.RUNTIME_CONFIG={API_BASE_URL:'$API_BASE_URL'};\" > /app/frontend/build/runtime-config.js && serve -s build -l 3000"
   ]
-    }
-
-    min_replicas = 1
-    max_replicas = 3
-  }
 }
+
+
 # Allow frontend container app identity to pull from ACR
 # resource "azurerm_role_assignment" "frontend_acr_pull" {
 #   scope                = azurerm_container_registry.acr.id
