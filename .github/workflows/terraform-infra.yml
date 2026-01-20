@@ -102,3 +102,11 @@ jobs:
           docker build app/app/frontend \
             -t "${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}"
           docker push "${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}"
+
+      - name: Print pushed images
+        run: |
+          echo "Backend image:"
+          echo "${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ github.sha }}"
+          echo ""
+          echo "Frontend image:"
+          echo "${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.sha }}"    
