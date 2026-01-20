@@ -69,11 +69,21 @@ variable "app_service_plan_sku" {
 }
 
 variable "app_service_backend_image" {
-  type        = string
-  description = "Backend container image for App Service"
+  type    = string
+  default = ""
+
+  validation {
+    condition     = var.enable_app_service == false || length(var.app_service_backend_image) > 0
+    error_message = "app_service_backend_image must be set when enable_app_service = true"
+  }
 }
 
 variable "app_service_frontend_image" {
-  type        = string
-  description = "Frontend container image for App Service"
+  type    = string
+  default = ""
+
+  validation {
+    condition     = var.enable_app_service == false || length(var.app_service_frontend_image) > 0
+    error_message = "app_service_frontend_image must be set when enable_app_service = true"
+  }
 }
