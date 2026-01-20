@@ -1,4 +1,4 @@
-name: Deploy - Azure Container Apps
+name: Terraform Deploy - Azure Container Apps
 
 concurrency:
   group: terraform-skycastnow-containerapps
