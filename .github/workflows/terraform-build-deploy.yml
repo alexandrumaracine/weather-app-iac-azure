@@ -79,6 +79,7 @@ jobs:
         working-directory: terraform
         env:
           TF_VAR_deploy_apps: "false"
+          TF_VAR_enable_app_service: "false"
           TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
           TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
         run: terraform apply -auto-approve
