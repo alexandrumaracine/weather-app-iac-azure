@@ -1,4 +1,4 @@
-name: Terraform Deploy - Azure Container Apps
+name: Deploy - Azure Container Apps
 
 concurrency:
   group: terraform-skycastnow-containerapps
@@ -47,4 +47,18 @@ jobs:
           terraform init -reconfigure \
             -backend-config="resource_group_name=${{ secrets.TFSTATE_RESOURCE_GROUP }}" \
             -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}" \
-            -backend-config="container_name=${{ se_
+            -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
+            -backend-config="key=${{ secrets.TFSTATE_KEY }}"
+
+      - name: Terraform Apply (Container Apps)
+        working-directory: terraform
+        env:
+          TF_VAR_deploy_apps: "true"
+          TF_VAR_enable_app_service: "false"
+
+          TF_VAR_backend_image:  "${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ inputs.image_tag }}"
+          TF_VAR_frontend_image: "${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ inputs.image_tag }}"
+
+          TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
+          TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
+        run: terraform apply -auto-approve
