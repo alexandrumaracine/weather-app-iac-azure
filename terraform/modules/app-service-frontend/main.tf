@@ -17,7 +17,7 @@ resource "azurerm_linux_web_app" "this" {
 
   app_settings = merge(
     {
-      WEBSITES_PORT = "8080"
+      WEBSITES_PORT = "3000"
     },
     var.app_settings
   )
