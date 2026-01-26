@@ -5,23 +5,26 @@ resource "azurerm_linux_web_app" "this" {
   service_plan_id     = var.service_plan_id
 
   site_config {
-    always_on         = true
+    always_on = true
+
+    application_stack {
+      docker_image_name        = var.image
+      docker_registry_url      = "https://${var.acr_login_server}"
+      docker_registry_username = var.acr_username
+      docker_registry_password = var.acr_password
+    }
   }
 
   app_settings = merge(
     {
-      WEBSITES_PORT                   = "80"
-      DOCKER_REGISTRY_SERVER_URL      = "https://${var.acr_login_server}"
-      DOCKER_REGISTRY_SERVER_USERNAME = var.acr_username
-      DOCKER_REGISTRY_SERVER_PASSWORD = var.acr_password
-
-      DOCKER_CUSTOM_IMAGE_NAME = var.image
+      WEBSITES_PORT = "8080"
     },
     var.app_settings
   )
 
   tags = var.tags
 }
+
 
 resource "azurerm_monitor_diagnostic_setting" "this" {
   name                       = "${var.name}-logs"
