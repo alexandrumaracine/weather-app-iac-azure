@@ -168,9 +168,9 @@ module "backend_app" {
 
   openweather_api_key = var.openweather_api_key
 
-  mysql_host     = module.mysql.fqdn
+  mysql_host     = module.mysql.server_name
   mysql_database = var.mysql_database
-  mysql_user     = var.mysql_admin_user
+  mysql_user     = "${var.mysql_admin_user}@${module.mysql.server_name}"
   mysql_password = var.mysql_admin_password
 
   # cpu/memory/min/max use defaults matching your current config

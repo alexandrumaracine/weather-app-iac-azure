@@ -31,3 +31,7 @@ output "app_service_frontend_url" {
   value       = var.enable_app_service ? module.app_service_frontend[0].url : null
   description = "Frontend URL (Azure App Service)"
 }
+
+output "server_name" {
+  value = azurerm_mysql_flexible_server.this.name
+}
