@@ -94,8 +94,9 @@ module "app_service_backend" {
     OPENWEATHER_API_KEY = var.openweather_api_key
     MYSQL_HOST          = module.mysql.fqdn
     MYSQL_DB            = var.mysql_database
-    MYSQL_USER          = var.mysql_admin_user
+    MYSQL_USER          = "${var.mysql_admin_user}@${module.mysql.server_name}"
     MYSQL_PASS          = var.mysql_admin_password
+    MYSQL_SSL_DISABLED = "true"
   }
 }
 
