@@ -32,6 +32,11 @@ output "app_service_frontend_url" {
   description = "Frontend URL (Azure App Service)"
 }
 
-output "server_name" {
-  value = azurerm_mysql_flexible_server.this.name
+output "mysql_server_name" {
+  value = module.mysql.server_name
 }
+
+output "mysql_fqdn" {
+  value = module.mysql.fqdn
+}
+
