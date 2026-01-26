@@ -8,8 +8,8 @@ resource "azurerm_linux_web_app" "this" {
     always_on = true
 
     application_stack {
-      docker_image_name        = var.image  # skycastnowacr.azurecr.io/backend:TAG
-      # docker_registry_url      = null
+      docker_image_name        = "backend:${var.image_tag}"
+      docker_registry_url      = "https://${var.acr_login_server}"
       docker_registry_username = var.acr_username
       docker_registry_password = var.acr_password
     }

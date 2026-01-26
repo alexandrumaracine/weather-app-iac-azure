@@ -41,13 +41,13 @@ variable "frontend_name" {
 variable "backend_image" {
   type        = string
   description = "Full backend image reference in ACR (e.g. myacr.azurecr.io/backend:1.0.1)"
-  default     = ""
+  default     = null
 }
 
 variable "frontend_image" {
   type        = string
   description = "Full frontend image reference in ACR (e.g. myacr.azurecr.io/frontend:1.0.1)"
-  default     = ""
+  default     = null
 }
 
 variable "deploy_apps" {
@@ -68,12 +68,10 @@ variable "app_service_plan_sku" {
   description = "SKU for the App Service Plan"
 }
 
-variable "app_service_backend_image" {
-  type    = string
-  default = ""
+variable "app_service_backend_image_tag" {
+  type = string
 }
 
-variable "app_service_frontend_image" {
-  type    = string
-  default = ""
+variable "app_service_frontend_image_tag" {
+  type = string
 }

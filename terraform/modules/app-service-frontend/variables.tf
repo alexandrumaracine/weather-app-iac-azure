@@ -34,11 +34,6 @@ variable "acr_password" {
   sensitive   = true
 }
 
-variable "image" {
-  type        = string
-  description = "Full container image reference (registry/image:tag)"
-}
-
 variable "app_settings" {
   type        = map(string)
   default     = {}
@@ -55,3 +50,9 @@ variable "tags" {
   default     = {}
   description = "Tags to apply to the App Service"
 }
+
+variable "image_tag" {
+  type        = string
+  description = "Docker image tag for frontend"
+}
+

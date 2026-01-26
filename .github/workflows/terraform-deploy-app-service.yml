@@ -56,8 +56,8 @@ jobs:
           TF_VAR_deploy_apps: "false"
           TF_VAR_enable_app_service: "true"
 
-          TF_VAR_app_service_backend_image:  "${{ secrets.ACR_LOGIN_SERVER }}/backend:${{ inputs.image_tag }}"
-          TF_VAR_app_service_frontend_image: "${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ inputs.image_tag }}"
+          TF_VAR_app_service_backend_image_tag:  "${{ inputs.image_tag }}"
+          TF_VAR_app_service_frontend_image_tag: "${{ inputs.image_tag }}"
 
           TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
           TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}

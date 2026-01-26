@@ -31,7 +31,3 @@ output "app_service_frontend_url" {
   value       = var.enable_app_service ? module.app_service_frontend[0].url : null
   description = "Frontend URL (Azure App Service)"
 }
-
-output "debug_frontend_image" {
-  value = var.app_service_frontend_image
-}

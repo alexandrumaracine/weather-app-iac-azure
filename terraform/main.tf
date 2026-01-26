@@ -73,52 +73,57 @@ module "app_service_plan" {
 
 module "app_service_backend" {
   count = var.enable_app_service ? 1 : 0
+  source = "./modules/app-service-backend"
 
-  source                     = "./modules/app-service-backend"
-  name                       = "${var.project_name}-backend-as"
-  resource_group_name        = module.rg.name
-  location                   = module.rg.location
-  service_plan_id            = module.app_service_plan[0].id
+  name                = "${var.project_name}-backend-as"
+  resource_group_name = module.rg.name
+  location            = module.rg.location
+  service_plan_id     = module.app_service_plan[0].id
+
   log_analytics_workspace_id = module.log_analytics.id
-  tags                       = local.tags
+
+  tags = local.tags
 
   acr_login_server = module.acr.login_server
   acr_username     = module.acr.admin_username
   acr_password     = module.acr.admin_password
 
-  image = var.app_service_backend_image
+  image_tag = var.app_service_backend_image_tag
 
   app_settings = {
-    MYSQL_HOST = module.mysql.fqdn
-    MYSQL_DB   = var.mysql_database
-    MYSQL_USER = var.mysql_admin_user
-    MYSQL_PASS = var.mysql_admin_password
-
     OPENWEATHER_API_KEY = var.openweather_api_key
+    MYSQL_HOST          = module.mysql.fqdn
+    MYSQL_DB            = var.mysql_database
+    MYSQL_USER          = var.mysql_admin_user
+    MYSQL_PASS          = var.mysql_admin_password
   }
 }
 
+
 module "app_service_frontend" {
   count = var.enable_app_service ? 1 : 0
+  source = "./modules/app-service-frontend"
 
-  source                     = "./modules/app-service-frontend"
-  name                       = "${var.project_name}-frontend-as"
-  resource_group_name        = module.rg.name
-  location                   = module.rg.location
-  service_plan_id            = module.app_service_plan[0].id
+  name                = "${var.project_name}-frontend-as"
+  resource_group_name = module.rg.name
+  location            = module.rg.location
+  service_plan_id     = module.app_service_plan[0].id
+
   log_analytics_workspace_id = module.log_analytics.id
-  tags                       = local.tags
+
+  tags = local.tags
 
   acr_login_server = module.acr.login_server
   acr_username     = module.acr.admin_username
   acr_password     = module.acr.admin_password
 
-  image = var.app_service_frontend_image
+  image_tag = var.app_service_frontend_image_tag
 
   app_settings = {
     BACKEND_URL = module.app_service_backend[0].url
   }
 }
+
 
 module "app_service_autoscale" {
   count = var.enable_app_service ? 1 : 0

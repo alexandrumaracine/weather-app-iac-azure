@@ -27,10 +27,6 @@ variable "acr_password" {
   sensitive = true
 }
 
-variable "image" {
-  type = string
-}
-
 variable "app_settings" {
   type    = map(string)
   default = {}
@@ -43,4 +39,9 @@ variable "log_analytics_workspace_id" {
 variable "tags" {
   type    = map(string)
   default = {}
+}
+
+variable "image_tag" {
+  type        = string
+  description = "Docker image tag for backend"
 }

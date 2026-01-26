@@ -56,7 +56,9 @@ variable "container_name" {
 }
 
 variable "image" {
-  type = string
+  type        = string
+  description = "Full container image reference"
+  default     = null
 }
 
 variable "cpu" {
