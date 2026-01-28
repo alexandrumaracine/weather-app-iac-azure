@@ -80,6 +80,7 @@ jobs:
           TF_VAR_app_service_frontend_image_tag: "infra-only"
           TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
           TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
+          TF_VAR_mysql_app_password: ${{ secrets.MYSQL_APP_PASSWORD }}
         run: terraform apply -auto-approve
 
       # ---------------------------
