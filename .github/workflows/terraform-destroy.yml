@@ -1,7 +1,25 @@
-name: Terraform Destroy Infra
+name: Terraform Destroy (Selectable)
 
 on:
   workflow_dispatch:
+    inputs:
+      destroy_infra:
+        description: "Destroy INFRA (RG, MySQL, ACR, etc)"
+        required: true
+        type: boolean
+        default: false
+
+      destroy_appservice:
+        description: "Destroy Azure App Service (frontend + backend)"
+        required: true
+        type: boolean
+        default: false
+
+      destroy_aca:
+        description: "Destroy Azure Container Apps (ACA)"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   id-token: write
@@ -19,13 +37,13 @@ jobs:
 
     steps:
       # ---------------------------
-      # Checkout IaC repository
+      # Checkout
       # ---------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
       # ---------------------------
-      # Azure Login via OIDC
+      # Azure Login
       # ---------------------------
       - name: Azure Login
         uses: azure/login@v2
@@ -35,41 +53,81 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # ---------------------------
-      # Terraform setup
+      # Terraform Setup
       # ---------------------------
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.7.5"
 
-      # ---------------------------
-      # Terraform Init (remote backend via secrets)
-      # ---------------------------
-      - name: Terraform Init
+      # ============================================================
+      # DESTROY APP SERVICE
+      # ============================================================
+      - name: Terraform Destroy - App Service
+        if: ${{ inputs.destroy_appservice }}
         working-directory: terraform
+        env:
+          TF_VAR_deploy_apps: "false"
+          TF_VAR_enable_app_service: "true"
+
+          TF_VAR_app_service_backend_image_tag: "destroy"
+          TF_VAR_app_service_frontend_image_tag: "destroy"
+
+          TF_VAR_openweather_api_key: "dummy"
+          TF_VAR_mysql_admin_password: "dummy"
+          TF_VAR_mysql_app_password: "dummy"
         run: |
           terraform init -reconfigure \
             -backend-config="resource_group_name=${{ secrets.TFSTATE_RESOURCE_GROUP }}" \
             -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}" \
             -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
-            -backend-config="key=${{ secrets.TFSTATE_KEY }}"
+            -backend-config="key=appservice.tfstate"
 
-      # ---------------------------
-      # Terraform Destroy
-      # ---------------------------
-      - name: Debug env
+          terraform destroy -auto-approve
+
+      # ============================================================
+      # DESTROY CONTAINER APPS (ACA)
+      # ============================================================
+      - name: Terraform Destroy - Container Apps
+        if: ${{ inputs.destroy_aca }}
+        working-directory: terraform
+        env:
+          TF_VAR_deploy_apps: "true"
+          TF_VAR_enable_app_service: "false"
+
+          TF_VAR_backend_image: "dummy"
+          TF_VAR_frontend_image: "dummy"
+
+          TF_VAR_openweather_api_key: "dummy"
+          TF_VAR_mysql_admin_password: "dummy"
+          TF_VAR_mysql_app_password: "dummy"
         run: |
-          echo "TF_VAR_mysql_app_password=$TF_VAR_mysql_app_password"  
+          terraform init -reconfigure \
+            -backend-config="resource_group_name=${{ secrets.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
+            -backend-config="key=aca.tfstate"
 
+          terraform destroy -auto-approve
 
-      - name: Terraform Destroy
+      # ============================================================
+      # DESTROY INFRA (LAST, ALWAYS LAST)
+      # ============================================================
+      - name: Terraform Destroy - Infra
+        if: ${{ inputs.destroy_infra }}
         working-directory: terraform
         env:
           TF_VAR_deploy_apps: "false"
-          # 👇 dummy values, not used because enable_app_service=false
-          TF_VAR_app_service_backend_image_tag: "infra-only"
-          TF_VAR_app_service_frontend_image_tag: "infra-only"
-          TF_VAR_openweather_api_key: "DummyPass123!"
-          TF_VAR_mysql_admin_password: "DummyPass123!"
-          TF_VAR_mysql_app_password: "dummy-destroy-password"
-        run: terraform destroy -auto-approve
+          TF_VAR_enable_app_service: "false"
+
+          TF_VAR_openweather_api_key: "dummy"
+          TF_VAR_mysql_admin_password: "dummy"
+          TF_VAR_mysql_app_password: "dummy"
+        run: |
+          terraform init -reconfigure \
+            -backend-config="resource_group_name=${{ secrets.TFSTATE_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
+            -backend-config="key=infra.tfstate"
+
+          terraform destroy -auto-approve
