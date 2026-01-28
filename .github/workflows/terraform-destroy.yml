@@ -66,4 +66,5 @@ jobs:
           TF_VAR_app_service_frontend_image_tag: "infra-only"
           TF_VAR_openweather_api_key: "DummyPass123!"
           TF_VAR_mysql_admin_password: "DummyPass123!"
+          TF_VAR_mysql_app_password: "dummy-destroy-password"
         run: terraform destroy -auto-approve
