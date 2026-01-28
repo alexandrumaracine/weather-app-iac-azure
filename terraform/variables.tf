@@ -22,6 +22,11 @@ variable "mysql_admin_password" {
   sensitive = true
 }
 
+variable "mysql_app_password" {
+  type      = string
+  sensitive = true
+}
+
 variable "mysql_database" {
   default = "weatherdb"
 }

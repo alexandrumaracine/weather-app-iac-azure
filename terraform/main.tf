@@ -81,7 +81,6 @@ module "app_service_backend" {
   service_plan_id     = module.app_service_plan[0].id
 
   log_analytics_workspace_id = module.log_analytics.id
-
   tags = local.tags
 
   acr_login_server = module.acr.login_server
@@ -92,13 +91,21 @@ module "app_service_backend" {
 
   app_settings = {
     OPENWEATHER_API_KEY = var.openweather_api_key
-    MYSQL_HOST          = module.mysql.fqdn
-    MYSQL_DB            = var.mysql_database
-    MYSQL_USER          = "${var.mysql_admin_user}@${module.mysql.server_name}"
-    MYSQL_PASS          = var.mysql_admin_password
-    MYSQL_SSL_DISABLED = "true"
+
+    MYSQL_HOST = module.mysql.fqdn
+    MYSQL_DB   = var.mysql_database
+
+    # ✅ APP USER (NOT ADMIN)
+    MYSQL_USER = "weatherapp"
+    MYSQL_PASS = var.mysql_app_password
+
+    # ✅ SSL MUST BE ENABLED
+    MYSQL_SSL_DISABLED = "false"
+
+    WEBSITES_PORT = "3000"
   }
 }
+
 
 
 module "app_service_frontend" {
