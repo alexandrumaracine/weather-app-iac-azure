@@ -93,4 +93,4 @@ jobs:
           TF_VAR_deploy_apps: ${{ inputs.runtime == 'aca' && 'true' || 'false' }}
           TF_VAR_enable_app_service: ${{ inputs.runtime == 'appservice' && 'true' || 'false' }}
 
-        run: terraform plan -no-color
+        run: terraform plan -no-color -input=false -var="app_service_backend_image_tag=${{ github.sha }}"
