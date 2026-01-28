@@ -75,8 +75,10 @@ variable "app_service_plan_sku" {
 
 variable "app_service_backend_image_tag" {
   type = string
+  default = "unused"
 }
 
 variable "app_service_frontend_image_tag" {
   type = string
+  default = "unused"
 }
