@@ -57,6 +57,11 @@ jobs:
       # ---------------------------
       # Terraform Destroy
       # ---------------------------
+      - name: Debug env
+        run: |
+          echo "TF_VAR_mysql_app_password=$TF_VAR_mysql_app_password"  
+
+
       - name: Terraform Destroy
         working-directory: terraform
         env:
