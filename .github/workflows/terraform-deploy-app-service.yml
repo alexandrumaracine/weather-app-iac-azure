@@ -41,7 +41,7 @@ jobs:
         with:
           terraform_version: "1.7.5"
 
-      - name: Terraform Init
+      - name: Terraform Init (App Service state)
         working-directory: terraform
         run: |
           terraform init -reconfigure \
@@ -50,15 +50,25 @@ jobs:
             -backend-config="container_name=${{ secrets.TFSTATE_CONTAINER }}" \
             -backend-config="key=appservice.tfstate"
 
-      - name: Terraform Apply (App Service)
+      - name: Terraform Apply (App Service only)
         working-directory: terraform
         env:
-          TF_VAR_deploy_apps: "false"
-          TF_VAR_enable_app_service: "true"
+          # 🔒 HARD STOP on shared infra
+          TF_VAR_deploy_infra: "false"
+          TF_VAR_deploy_mysql: "false"
+          TF_VAR_deploy_acr: "false"
+          TF_VAR_deploy_log_analytics: "false"
+          TF_VAR_deploy_container_env: "false"
 
-          TF_VAR_app_service_backend_image_tag:  "${{ inputs.image_tag }}"
+          # ✅ Enable only App Service
+          TF_VAR_enable_app_service: "true"
+          TF_VAR_deploy_apps: "true"
+
+          # Images
+          TF_VAR_app_service_backend_image_tag: "${{ inputs.image_tag }}"
           TF_VAR_app_service_frontend_image_tag: "${{ inputs.image_tag }}"
 
+          # Secrets still needed at runtime
           TF_VAR_openweather_api_key: ${{ secrets.OPENWEATHER_API_KEY }}
           TF_VAR_mysql_admin_password: ${{ secrets.MYSQL_ADMIN_PASSWORD }}
           TF_VAR_mysql_app_password: ${{ secrets.MYSQL_APP_PASSWORD }}
